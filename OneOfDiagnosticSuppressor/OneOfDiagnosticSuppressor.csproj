@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	<IsRoslynComponent>true</IsRoslynComponent>
+	<LangVersion>10</LangVersion>
+	<Nullable>enable</Nullable>
+
+    <RootNamespace>SvSoft.OneOf.Analyzers.SwitchDiagnosticSuppression</RootNamespace>
+	<__CurrentYear>$([System.DateTime]::Now.Year)</__CurrentYear>
+	<Copyright>Copyright (C) Sven Hübner 2022 - $(__CurrentYear)</Copyright>
+	<Authors>Sven Hübner</Authors>
+	<PackageId>SvSoft.OneOf.Analyzers.SwitchDiagnosticSuppression</PackageId>
+    <PackageTags>discriminated unions, match, switch, oneof</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageProjectUrl>https://github.com/shuebner/OneOfDiagnosticSuppressor</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/shuebner/OneOfDiagnosticSuppressor/blob/main/LICENSE</PackageLicenseUrl>
+    <Description>Suppresses exhaustiveness warnings of switch statement and switch expressions on OneOf&lt;...&gt;.Value from the OneOf library when all type arguments are covered. See project URL for details. It suppresses IDE0010, IDE0072 and CS8509. It is NRT-aware.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.11.0" />
+	<PackageReference Include="Nullable" Version="1.3.1" PrivateAssets="all" />
+  </ItemGroup>
+
+  <PropertyGroup>
+	<IncludeBuildOutput>false</IncludeBuildOutput>
+	<NoPackageAnalysis>true</NoPackageAnalysis>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+	
+</Project>
