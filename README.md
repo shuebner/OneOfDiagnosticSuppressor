@@ -6,6 +6,8 @@ This gives you all the syntactic power of native `switch` while keeping compile-
 
 See [this issue](https://github.com/mcintyre321/OneOf/issues/109).
 
+(If you are using structurally closed type hierarchies instead, see my other repo [ClosedTypeHierarchyDiagnosticSuppressor](https://github.com/shuebner/ClosedTypeHierarchyDiagnosticSuppressor).)
+
 ```csharp
 using OneOf;
 
