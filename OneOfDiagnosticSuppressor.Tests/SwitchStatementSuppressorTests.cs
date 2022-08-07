@@ -30,16 +30,9 @@ class SwitchStatementSuppressorTests
     [Test]
     public Task When_not_all_type_arguments_are_matched_Then_do_not_suppress()
     {
-        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static void DoSwitch(OneOf<int, string> oneof)
-{
-    switch (oneof.Value)
-    {
-        case int:
-            break;
-    };
-}
-");
+        var code = CodeHelper.SwitchStatementOneOfVariationsTemplate(
+            typeParams: "int, string",
+            switchArms: @"case int: break;");
 
         return EnsureNotSuppressed(code, NullableContextOptions.Enable);
     }
@@ -47,18 +40,10 @@ public static void DoSwitch(OneOf<int, string> oneof)
     [Test]
     public Task When_nullable_is_disabled_And_type_arguments_include_reference_type_And_null_is_not_matched_Then_do_not_suppress()
     {
-        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static void DoSwitch(OneOf<int, string> oneof)
-{
-    switch (oneof.Value)
-    {
-        case int:
-            break;
-        case string:
-            break;
-    };
-}
-");
+        var code = CodeHelper.SwitchStatementOneOfVariationsTemplate(
+            typeParams: "int, string",
+            switchArms: @"case int: break;
+                          case string: break;");
 
         return EnsureNotSuppressed(code, NullableContextOptions.Disable);
     }
@@ -66,18 +51,10 @@ public static void DoSwitch(OneOf<int, string> oneof)
     [Test]
     public Task When_nullable_is_disabled_And_type_arguments_only_include_nonnullable_value_types_And_null_is_not_matched_Then_suppress()
     {
-        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static void DoSwitch(OneOf<int, bool> oneof)
-{
-    switch (oneof.Value)
-    {
-        case int:
-            break;
-        case bool:
-            break;
-    };
-}
-");
+        var code = CodeHelper.SwitchStatementOneOfVariationsTemplate(
+            typeParams: "int, bool",
+            switchArms: @"case int: break;
+                          case bool: break;");
 
         return EnsureSuppressed(code, NullableContextOptions.Disable);
     }
@@ -85,18 +62,10 @@ public static void DoSwitch(OneOf<int, bool> oneof)
     [Test]
     public Task When_all_type_arguments_are_matched_Then_suppress()
     {
-        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static void DoSwitch(OneOf<int, string> oneof)
-{
-    switch (oneof.Value)
-    {
-        case int:
-            break;
-        case string:
-            break;
-    };
-}
-");
+        var code = CodeHelper.SwitchStatementOneOfVariationsTemplate(
+            typeParams: "int, string",
+            switchArms: @"case int: break;
+                          case string: break;");
 
         return EnsureSuppressed(code, NullableContextOptions.Enable);
     }
@@ -104,96 +73,82 @@ public static void DoSwitch(OneOf<int, string> oneof)
     [Test]
     public Task When_Value_property_is_nested_Then_suppress()
     {
-        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public class Wrapper<T> { public Wrapper(T inner) => Inner = inner; public T Inner { get; set; } }
-    
-public static void DoSwitch(Wrapper<Wrapper<OneOf<int, string>>> wrapper)
-{
-    switch (wrapper.Inner.Inner.Value)
-    {
-        case int:
-            break;
-        case string:
-            break;
-    };
-}
+        var typeParams = "int, string";
+        var switchArms = @"case int: break;
+                           case string: break;"; 
+        
+        var code = CodeHelper.WrapInNamespaceAndUsing(@$"
+[GenerateOneOf]
+public partial class GeneratedOneOf: OneOfBase<{typeParams}> {{ }}
+
+static class SwitchTest
+{{
+    public class Wrapper<T> {{ public Wrapper(T inner) => Inner = inner; public T Inner {{ get; set; }} }}
+
+    public static void DoSwitch(Wrapper<Wrapper<OneOf<{typeParams}>>> wrapper)
+    {{
+        switch (wrapper.Inner.Inner.Value)
+        {{
+            {switchArms}
+        }};
+    }}
+
+    public static void DoSwitch(Wrapper<Wrapper<GeneratedOneOf>> wrapper)
+    {{
+        switch (wrapper.Inner.Inner.Value)
+        {{
+            {switchArms}
+        }};
+    }}
+}}
 ");
+        
         return EnsureSuppressed(code, NullableContextOptions.Enable);
     }
 
     [Test]
     public Task When_type_arguments_include_nullable_value_types_and_null_is_not_matched_Then_do_not_suppress()
     {
-        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static void DoSwitch(OneOf<int?, string> oneof)
-{
-    switch (oneof.Value)
-    {
-        case int:
-            break;
-        case string:
-            break;
-    };
-}
-");
+        var code = CodeHelper.SwitchStatementOneOfVariationsTemplate(
+            typeParams: "int?, string",
+            switchArms: @"case int: break;
+                          case string: break;");
+        
         return EnsureNotSuppressed(code, NullableContextOptions.Enable);
     }
 
     [Test]
     public Task When_type_arguments_include_nullable_reference_types_and_null_is_not_matched_Then_do_not_suppress()
     {
-        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static void DoSwitch(OneOf<int, string?> oneof)
-{
-    switch (oneof.Value)
-    {
-        case int:
-            break;
-        case string:
-            break;
-    };
-}
-");
+        var code = CodeHelper.SwitchStatementOneOfVariationsTemplate(
+            typeParams: "int, string?",
+            switchArms: @"case int: break;
+                          case string: break;");
+
         return EnsureNotSuppressed(code, NullableContextOptions.Enable);
     }
 
     [Test]
     public Task When_type_arguments_include_nullable_value_types_and_null_is_matched_Then_suppress()
     {
-        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static void DoSwitch(OneOf<int?, string> oneof)
-{
-    switch (oneof.Value)
-    {
-        case int:
-            break;
-        case string:
-            break;
-        case null:
-            break;
-    };
-}
-");
+        var code = CodeHelper.SwitchStatementOneOfVariationsTemplate(
+            typeParams: "int?, string",
+            switchArms: @"case int: break;
+                          case string: break;
+                          case null: break;");
+        
         return EnsureSuppressed(code, NullableContextOptions.Enable);
     }
 
     [Test]
     public Task When_type_arguments_include_nullable_reference_types_and_null_is_matched_Then_suppress()
     {
-        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static void DoSwitch(OneOf<int, string?> oneof)
-{
-    switch (oneof.Value)
-    {
-        case int:
-            break;
-        case string:
-            break;
-        case null:
-            break;
-    };
-}
-");
+        var code = CodeHelper.SwitchStatementOneOfVariationsTemplate(
+            typeParams: "int, string?",
+            switchArms: @"case int: break;
+                          case string: break;
+                          case null: break;");
+
         return EnsureSuppressed(code, NullableContextOptions.Enable);
     }
 }

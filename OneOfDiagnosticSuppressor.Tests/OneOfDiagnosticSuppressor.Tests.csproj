@@ -38,4 +38,13 @@
     <ProjectReference Include="..\OneOfDiagnosticSuppressor\OneOfDiagnosticSuppressor.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\OneOf\OneOf.SourceGenerator\GeneratorDiagnosticDescriptors.cs">
+      <Link>GeneratorDiagnosticDescriptors.cs</Link>
+    </Compile>
+    <Compile Include="..\OneOf\OneOf.SourceGenerator\OneOfGenerator.cs">
+      <Link>OneOfGenerator.cs</Link>
+    </Compile>
+  </ItemGroup>
+
 </Project>

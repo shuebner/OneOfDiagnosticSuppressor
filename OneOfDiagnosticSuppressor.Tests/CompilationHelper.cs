@@ -2,6 +2,8 @@
 using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Reflection;
+using System.Threading;
+using OneOf.SourceGenerator;
 
 namespace SvSoft.OneOf.Analyzers.SwitchDiagnosticSuppression;
 static class CompilationHelper
@@ -14,7 +16,7 @@ static class CompilationHelper
             ? null
             : new[] { CSharpSyntaxTree.ParseText(code) };
 
-        return CSharpCompilation.Create(
+        var compilation = CSharpCompilation.Create(
             Guid.NewGuid().ToString("N"),
             syntaxTrees,
             references: new MetadataReference[]
@@ -28,5 +30,12 @@ static class CompilationHelper
                 OutputKind.DynamicallyLinkedLibrary,
                 reportSuppressedDiagnostics: true,
                 nullableContextOptions: nullableContextOptions));
+
+        CSharpGeneratorDriver.Create(new OneOfGenerator())
+            .RunGeneratorsAndUpdateCompilation(compilation, out var compilationWithGeneration, out var generatorDiagnostics, CancellationToken.None);
+
+        _ = generatorDiagnostics;
+
+        return compilationWithGeneration;
     }
 }

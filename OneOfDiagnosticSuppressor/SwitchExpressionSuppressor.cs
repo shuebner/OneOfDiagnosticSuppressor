@@ -52,6 +52,7 @@ public sealed class SwitchExpressionSuppressor : DiagnosticSuppressor
             {
                 IdentifierNameSyntax id => id,
                 MemberAccessExpressionSyntax { Name: IdentifierNameSyntax id } => id,
+                ThisExpressionSyntax id  => id as ExpressionSyntax,
                 _ => null
             };
 
@@ -62,34 +63,33 @@ public sealed class SwitchExpressionSuppressor : DiagnosticSuppressor
 
             var switcheeModel = context.GetSemanticModel(switchee.SyntaxTree);
             var valueSourceInfo = switcheeModel.GetTypeInfo(valueSource);
-            var valueSourceType = valueSourceInfo.Type;
-            IEnumerable<INamedTypeSymbol> subtypes;
-            if (valueSourceType is INamedTypeSymbol t)
+
+            static INamedTypeSymbol? AsOneOfSymbol(ITypeSymbol? t, string name)
             {
-                if (t.Name.Equals("OneOf", StringComparison.Ordinal) &&
+                if (t != null &&
+                    t.Name.Equals(name, StringComparison.Ordinal) &&
                     t.ContainingAssembly.Name.Equals("OneOf", StringComparison.Ordinal))
                 {
-                    var namedTypeArguments = t.TypeArguments.OfType<INamedTypeSymbol>().ToArray();
-                    if (namedTypeArguments.Length == t.TypeArguments.Length)
-                    {
-                        subtypes = namedTypeArguments;
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    return t as INamedTypeSymbol;
                 }
-                else
-                {
-                    return;
-                }
+
+                return null;
             }
-            else
+
+            var oneOfSymbol = AsOneOfSymbol(valueSourceInfo.Type?.BaseType, "OneOfBase")
+                              ?? AsOneOfSymbol(valueSourceInfo.Type, "OneOf");
+
+            var namedTypeArguments = oneOfSymbol?.TypeArguments.OfType<INamedTypeSymbol>().ToArray();
+            IEnumerable<INamedTypeSymbol>? subtypes = namedTypeArguments?.Length == oneOfSymbol?.TypeArguments.Length
+                ? namedTypeArguments
+                : null;
+
+            if (oneOfSymbol == null || subtypes == null)
             {
                 return;
             }
 
-            bool mustHandleNullCase = t.TypeArgumentNullableAnnotations.Any(a => a is not NullableAnnotation.NotAnnotated);
+            bool mustHandleNullCase = oneOfSymbol.TypeArgumentNullableAnnotations.Any(a => a is not NullableAnnotation.NotAnnotated);
 
             var arms = switchExpression.Arms;
 

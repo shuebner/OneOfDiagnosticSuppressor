@@ -51,8 +51,12 @@ public static class DiagnosticSuppressorAnalyer
             compilationErrors = compilationWithWarnings.GetDiagnostics();
         }
 
+        static bool IsNonHiddenError(Diagnostic d)
+            => d.Severity != DiagnosticSeverity.Hidden
+                && (d.Location.SourceTree != null && !d.Location.SourceTree.FilePath.EndsWith(".g.cs")); // ignore generated files
+
         ImmutableArray<Diagnostic> nonHiddenErrors = compilationErrors
-            .Where(d => d.Severity != DiagnosticSeverity.Hidden)
+            .Where(IsNonHiddenError)
             .ToImmutableArray();
 
         ImmutableArray<Diagnostic> suppressibleErrors = nonHiddenErrors
@@ -67,7 +71,7 @@ public static class DiagnosticSuppressorAnalyer
         ImmutableArray<Diagnostic> analyzerErrors = await compilationWithSuppressor.GetAllDiagnosticsAsync().ConfigureAwait(false);
 
         nonHiddenErrors = analyzerErrors
-            .Where(d => d.Severity != DiagnosticSeverity.Hidden)
+            .Where(IsNonHiddenError)
             .ToImmutableArray();
 
         Assert.That(nonHiddenErrors, Is.Not.Empty);
