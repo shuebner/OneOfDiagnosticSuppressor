@@ -63,28 +63,7 @@ public sealed class SwitchExpressionSuppressor : DiagnosticSuppressor
             var switcheeModel = context.GetSemanticModel(switchee.SyntaxTree);
             var valueSourceInfo = switcheeModel.GetTypeInfo(valueSource);
             var valueSourceType = valueSourceInfo.Type;
-            IEnumerable<INamedTypeSymbol> subtypes;
-            if (valueSourceType is INamedTypeSymbol t)
-            {
-                if (t.Name.Equals("OneOf", StringComparison.Ordinal) &&
-                    t.ContainingAssembly.Name.Equals("OneOf", StringComparison.Ordinal))
-                {
-                    var namedTypeArguments = t.TypeArguments.OfType<INamedTypeSymbol>().ToArray();
-                    if (namedTypeArguments.Length == t.TypeArguments.Length)
-                    {
-                        subtypes = namedTypeArguments;
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else
+            if (!(valueSourceType is INamedTypeSymbol t && OneOfTypeHelper.GetOneOfSubTypes(t) is IEnumerable<INamedTypeSymbol> subtypes))
             {
                 return;
             }
