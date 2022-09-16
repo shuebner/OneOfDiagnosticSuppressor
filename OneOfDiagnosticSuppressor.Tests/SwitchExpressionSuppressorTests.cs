@@ -96,6 +96,24 @@ public static int DoSwitch(OneOf<int, string> oneof)
     }
 
     [Test]
+    public Task When_all_type_arguments_are_matched_on_OneOfBase_Then_suppress()
+    {
+        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
+public static int DoSwitch(OneOfBase<int, string, bool> oneof)
+{
+    return oneof.Value switch
+    {
+        string => 1,
+        int => 0,
+        bool => 2
+    };
+}
+");
+
+        return EnsureSuppressed(code, NullableContextOptions.Enable);
+    }
+
+    [Test]
     public Task When_Value_property_is_nested_Then_suppress()
     {
         var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
