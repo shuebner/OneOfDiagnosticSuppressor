@@ -42,27 +42,9 @@ public sealed class SwitchExpressionSuppressor : DiagnosticSuppressor
 
             var switchExpression = node.DescendantNodesAndSelf().OfType<SwitchExpressionSyntax>().FirstOrDefault();
 
-            ExpressionSyntax switchee = switchExpression.GoverningExpression;
-            if (switchee is not MemberAccessExpressionSyntax { Name.Identifier.Text: "Value" } valueAccess)
-            {
-                return;
-            }
+            SemanticModel switcheeModel = context.GetSemanticModel(switchExpression.GoverningExpression.SyntaxTree);
+            var valueSourceType = ExpressionHelper.GetTypeOfSwitchExpressionOrStatement(switcheeModel, switchExpression.GoverningExpression);
 
-            var valueSource = valueAccess.Expression switch
-            {
-                IdentifierNameSyntax id => id,
-                MemberAccessExpressionSyntax { Name: IdentifierNameSyntax id } => id,
-                _ => null
-            };
-
-            if (valueSource is null)
-            {
-                return;
-            }
-
-            var switcheeModel = context.GetSemanticModel(switchee.SyntaxTree);
-            var valueSourceInfo = switcheeModel.GetTypeInfo(valueSource);
-            var valueSourceType = valueSourceInfo.Type;
             if (!(valueSourceType is INamedTypeSymbol t && OneOfTypeHelper.GetOneOfSubTypes(t) is IEnumerable<INamedTypeSymbol> subtypes))
             {
                 return;

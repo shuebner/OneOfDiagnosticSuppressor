@@ -196,4 +196,46 @@ public static int DoSwitch(OneOf<int, string?> oneof)
 ");
         return EnsureSuppressed(code, NullableContextOptions.Enable);
     }
+
+    [Test]
+    public Task When_Value_property_is_from_await_expression_Then_suppress()
+    {
+        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
+public static Task<OneOf<int, string>> AsyncFunc()
+{
+    return Task.FromResult<OneOf<int, string>>(1);
+}
+
+public static async Task<int> DoSwitch()
+{
+    return (await AsyncFunc()).Value switch
+    {
+        int => 1,
+        string => 2,
+    };
+}
+");
+        return EnsureSuppressed(code, NullableContextOptions.Enable);
+    }
+
+    [Test]
+    public Task When_Value_property_is_from_invocation_Then_suppress()
+    {
+        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
+public static OneOf<int, string> OneOfFunc()
+{
+    return 1;
+}
+
+public static int DoSwitch()
+{
+    return OneOfFunc().Value switch
+    {
+        int => 1,
+        string => 2,
+    };
+}
+");
+        return EnsureSuppressed(code, NullableContextOptions.Enable);
+    }
 }
