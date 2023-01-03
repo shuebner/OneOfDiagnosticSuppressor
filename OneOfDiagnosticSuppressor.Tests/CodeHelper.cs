@@ -4,6 +4,7 @@ static class CodeHelper
     public static string WrapInNamespaceAndUsingAndClass(string code) => $@"
 using OneOf;
 using System;
+using System.Threading.Tasks;
 
 namespace MyCode
 {{
