@@ -238,4 +238,34 @@ public static int DoSwitch()
 ");
         return EnsureSuppressed(code, NullableContextOptions.Enable);
     }
+
+    [Test]
+    public Task When_switch_expressions_are_nested_Then_invocations_work_directly_without_an_intermediate_variable()
+    {
+        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
+public static OneOf<int, string> OneOfFunc()
+{
+    return 1;
+}
+
+public static OneOf<int, string> OneOfFunc2(int i)
+{
+    return i;
+}
+
+public static int DoSwitch()
+{
+    return OneOfFunc().Value switch
+    {
+        string => 1,
+        int i => OneOfFunc2(i).Value switch
+        {
+            string => 3,
+            int => 4,
+        },
+    };
+}
+");
+        return EnsureSuppressed(code, NullableContextOptions.Enable);
+    }
 }
