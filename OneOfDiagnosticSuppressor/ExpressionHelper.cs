@@ -16,36 +16,41 @@ static class ExpressionHelper
     static ITypeSymbol? GetTypeSymbolFromIdentifier(SemanticModel model, IdentifierNameSyntax syntax)
         => model.GetTypeInfo(syntax).Type;
 
-    static ITypeSymbol? GetTypeSymbolFromInvocation(SemanticModel model, InvocationExpressionSyntax invocation, bool expectTaskReturnType)
+    static ITypeSymbol? GetTypeSymbolFromInvocation(SemanticModel model, InvocationExpressionSyntax invocation)
     {
         var invokedSymbol = model.GetSymbolInfo(invocation);
-        if (invokedSymbol.Symbol is not IMethodSymbol methodSymbol || methodSymbol.ReturnType is not INamedTypeSymbol returnTypeSymbol)
+        if (invokedSymbol.Symbol is not IMethodSymbol methodSymbol)
+        {
+            return null;
+        }
+        return methodSymbol.ReturnType;
+    }
+
+    static ITypeSymbol? GetTypeOfTask(ITypeSymbol? taskSymbol)
+    {
+        if (taskSymbol is not INamedTypeSymbol namedTaskSymbol)
+        {
+            return null;
+        }
+        if (namedTaskSymbol.TypeArguments.Length != 1)
         {
             return null;
         }
 
-        if (expectTaskReturnType)
-        {
-            if (returnTypeSymbol.TypeArguments.Length != 1)
-            {
-                return null;
-            }
-
-            return returnTypeSymbol.TypeArguments[0];
-        }
-
-        return returnTypeSymbol;
+        return namedTaskSymbol.TypeArguments[0];
     }
 
-    static ITypeSymbol? GetTypeSymbolFromAwaitExpression(SemanticModel model, AwaitExpressionSyntax awaitSyntax)
+    static ITypeSymbol? GetTypeSymbolFromExpression(SemanticModel model, ExpressionSyntax expression)
     {
-        return GetUnparenthesizedExpression(awaitSyntax.Expression) switch
+        return GetUnparenthesizedExpression(expression) switch
         {
             IdentifierNameSyntax id => GetTypeSymbolFromIdentifier(model, id),
             MemberAccessExpressionSyntax { Name: IdentifierNameSyntax id } => GetTypeSymbolFromIdentifier(model, id),
-            InvocationExpressionSyntax invocation => GetTypeSymbolFromInvocation(model, invocation, expectTaskReturnType: true),
+            InvocationExpressionSyntax invocation => GetTypeSymbolFromInvocation(model, invocation),
+            AwaitExpressionSyntax awaitSyntax => GetTypeOfTask(GetTypeSymbolFromExpression(model, awaitSyntax.Expression)),
             _ => null,
         };
+
     }
 
     public static ITypeSymbol? GetTypeOfSwitchExpressionOrStatement(SemanticModel model, ExpressionSyntax switchSyntaxExpression)
@@ -55,13 +60,6 @@ static class ExpressionHelper
             return null;
         }
 
-        return GetUnparenthesizedExpression(valueAccess.Expression) switch
-        {
-            IdentifierNameSyntax id => GetTypeSymbolFromIdentifier(model, id),
-            MemberAccessExpressionSyntax { Name: IdentifierNameSyntax id } => GetTypeSymbolFromIdentifier(model, id),
-            InvocationExpressionSyntax invocation => GetTypeSymbolFromInvocation(model, invocation, expectTaskReturnType: false),
-            AwaitExpressionSyntax awaitSyntax => GetTypeSymbolFromAwaitExpression(model, awaitSyntax),
-            _ => null,
-        };
+        return GetTypeSymbolFromExpression(model, valueAccess.Expression);
     }
 }

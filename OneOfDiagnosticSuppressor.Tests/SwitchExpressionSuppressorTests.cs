@@ -132,6 +132,27 @@ public static int DoSwitch(Wrapper<Wrapper<OneOf<int, string>>> wrapper)
     }
 
     [Test]
+    public Task When_Value_property_is_from_invocation_Then_suppress()
+    {
+        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
+public static OneOf<int, string> OneOfFunc()
+{
+    return 1;
+}
+
+public static int DoSwitch()
+{
+    return OneOfFunc().Value switch
+    {
+        int => 1,
+        string => 2,
+    };
+}
+");
+        return EnsureSuppressed(code, NullableContextOptions.Enable);
+    }
+
+    [Test]
     public Task When_type_arguments_include_nullable_value_types_and_null_is_not_matched_Then_do_not_suppress()
     {
         var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
@@ -198,17 +219,13 @@ public static int DoSwitch(OneOf<int, string?> oneof)
     }
 
     [Test]
-    public Task When_Value_property_is_from_await_expression_Then_suppress()
+    public Task When_Value_property_is_from_await_identifier_expression_Then_suppress()
     {
         var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static Task<OneOf<int, string>> AsyncFunc()
-{
-    return Task.FromResult<OneOf<int, string>>(1);
-}
-
 public static async Task<int> DoSwitch()
 {
-    return (await AsyncFunc()).Value switch
+    var task = Task.FromResult(OneOf<int, string>.FromT0(0));
+    return (await task).Value switch
     {
         int => 1,
         string => 2,
@@ -219,17 +236,55 @@ public static async Task<int> DoSwitch()
     }
 
     [Test]
-    public Task When_Value_property_is_from_invocation_Then_suppress()
+    public Task When_Value_property_if_from_nested_await_expression_Then_suppress()
     {
         var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
-public static OneOf<int, string> OneOfFunc()
+static Task<Task<OneOf<int, string>>> Func()
 {
-    return 1;
+    return Task.FromResult(Task.FromResult(OneOf<int, string>.FromT0(0)));
 }
 
-public static int DoSwitch()
+public static async Task<int> DoSwitch()
 {
-    return OneOfFunc().Value switch
+    return (await await Func()).Value switch
+    {
+        int => 1,
+        string => 2,
+    };
+}
+");
+        return EnsureSuppressed(code, NullableContextOptions.Enable);
+    }
+
+    [Test]
+    public Task When_Value_property_is_from_await_member_expression_Then_suppress()
+    {
+        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
+public static async Task<int> DoSwitch()
+{
+    var obj = new { Task = Task.FromResult(OneOf<int, string>.FromT0(0)) };
+    return (await obj.Task).Value switch
+    {
+        int => 1,
+        string => 2,
+    };
+}
+");
+        return EnsureSuppressed(code, NullableContextOptions.Enable);
+    }
+
+    [Test]
+    public Task When_Value_property_is_from_await_invocation_expression_Then_suppress()
+    {
+        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
+public static Task<OneOf<int, string>> AsyncFunc()
+{
+    return Task.FromResult<OneOf<int, string>>(1);
+}
+
+public static async Task<int> DoSwitch()
+{
+    return (await AsyncFunc()).Value switch
     {
         int => 1,
         string => 2,
