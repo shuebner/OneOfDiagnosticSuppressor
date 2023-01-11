@@ -41,7 +41,7 @@ public sealed class SwitchStatementSuppressor : DiagnosticSuppressor
             }
 
             SemanticModel switcheeModel = context.GetSemanticModel(switchStatement.Expression.SyntaxTree);
-            var valueSourceType = ExpressionHelper.GetTypeOfSwitchExpressionOrStatement(switcheeModel, switchStatement.Expression);
+            var valueSourceType = ExpressionHelper.GetTypeOfValueSource(switcheeModel, switchStatement.Expression);
 
             if (!(valueSourceType is INamedTypeSymbol t && OneOfTypeHelper.GetOneOfSubTypes(t) is IEnumerable<INamedTypeSymbol> subtypes))
             {

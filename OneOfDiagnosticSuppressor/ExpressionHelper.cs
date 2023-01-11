@@ -5,26 +5,16 @@ namespace SvSoft.OneOf.Analyzers.SwitchDiagnosticSuppression;
 
 static class ExpressionHelper
 {
-    static ExpressionSyntax GetUnparenthesizedExpression(ExpressionSyntax expression)
-    {
-        while (expression is ParenthesizedExpressionSyntax parenthesizedExpression)
-            expression = parenthesizedExpression.Expression;
+    const string OneOfValuePropertyName = "Value";
 
-        return expression;
-    }
-
-    static ITypeSymbol? GetTypeOfTask(ITypeSymbol? taskSymbol)
+    public static ITypeSymbol? GetTypeOfValueSource(SemanticModel model, ExpressionSyntax switcheeSyntax)
     {
-        if (taskSymbol is not INamedTypeSymbol namedTaskSymbol)
-        {
-            return null;
-        }
-        if (namedTaskSymbol.TypeArguments.Length != 1)
+        if (switcheeSyntax is not MemberAccessExpressionSyntax { Name.Identifier.Text: OneOfValuePropertyName } valueAccess)
         {
             return null;
         }
 
-        return namedTaskSymbol.TypeArguments[0];
+        return GetTypeSymbolFromExpression(model, valueAccess.Expression);
     }
 
     static ITypeSymbol? GetTypeSymbolFromExpression(SemanticModel model, ExpressionSyntax expression)
@@ -39,13 +29,28 @@ static class ExpressionHelper
         };
     }
 
-    public static ITypeSymbol? GetTypeOfSwitchExpressionOrStatement(SemanticModel model, ExpressionSyntax switchSyntaxExpression)
+    static ExpressionSyntax GetUnparenthesizedExpression(ExpressionSyntax expression)
     {
-        if (switchSyntaxExpression is not MemberAccessExpressionSyntax { Name.Identifier.Text: "Value" } valueAccess)
+        while (expression is ParenthesizedExpressionSyntax parenthesizedExpression)
+        {
+            expression = parenthesizedExpression.Expression;
+        }
+
+        return expression;
+    }
+
+    static ITypeSymbol? GetTypeOfTask(ITypeSymbol? taskSymbol)
+    {
+        if (taskSymbol is not INamedTypeSymbol namedTaskSymbol)
         {
             return null;
         }
 
-        return GetTypeSymbolFromExpression(model, valueAccess.Expression);
+        if (namedTaskSymbol.TypeArguments.Length != 1)
+        {
+            return null;
+        }
+
+        return namedTaskSymbol.TypeArguments[0];
     }
 }
