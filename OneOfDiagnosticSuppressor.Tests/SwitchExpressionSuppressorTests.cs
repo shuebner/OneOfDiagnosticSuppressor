@@ -224,6 +224,23 @@ public static int DoSwitch(OneOf<int, string?> oneof)
         var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
 public static async Task<int> DoSwitch()
 {
+    Task<OneOf<int, string>> task = Task.FromResult(OneOf<int, string>.FromT0(0));
+    return (await task).Value switch
+    {
+        int => 1,
+        string => 2,
+    };
+}
+");
+        return EnsureSuppressed(code, NullableContextOptions.Enable);
+    }
+
+    [Test]
+    public Task When_Value_property_is_from_await_identifier_expression_declared_as_var_Then_suppress()
+    {
+        var code = CodeHelper.WrapInNamespaceAndUsingAndClass(@"
+public static async Task<int> DoSwitch()
+{
     var task = Task.FromResult(OneOf<int, string>.FromT0(0));
     return (await task).Value switch
     {

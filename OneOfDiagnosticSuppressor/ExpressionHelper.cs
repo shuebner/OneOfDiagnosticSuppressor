@@ -13,19 +13,6 @@ static class ExpressionHelper
         return expression;
     }
 
-    static ITypeSymbol? GetTypeSymbolFromIdentifier(SemanticModel model, IdentifierNameSyntax syntax)
-        => model.GetTypeInfo(syntax).Type;
-
-    static ITypeSymbol? GetTypeSymbolFromInvocation(SemanticModel model, InvocationExpressionSyntax invocation)
-    {
-        var invokedSymbol = model.GetSymbolInfo(invocation);
-        if (invokedSymbol.Symbol is not IMethodSymbol methodSymbol)
-        {
-            return null;
-        }
-        return methodSymbol.ReturnType;
-    }
-
     static ITypeSymbol? GetTypeOfTask(ITypeSymbol? taskSymbol)
     {
         if (taskSymbol is not INamedTypeSymbol namedTaskSymbol)
@@ -44,13 +31,12 @@ static class ExpressionHelper
     {
         return GetUnparenthesizedExpression(expression) switch
         {
-            IdentifierNameSyntax id => GetTypeSymbolFromIdentifier(model, id),
-            MemberAccessExpressionSyntax { Name: IdentifierNameSyntax id } => GetTypeSymbolFromIdentifier(model, id),
-            InvocationExpressionSyntax invocation => GetTypeSymbolFromInvocation(model, invocation),
+            // we need to explicitly handle the await expression because otherwise we get
+            // wrong nullable annotations on the generic type arguments of OneOf<...> when
+            // the Task<OneOf<...>> was declared with the var keyword
             AwaitExpressionSyntax awaitSyntax => GetTypeOfTask(GetTypeSymbolFromExpression(model, awaitSyntax.Expression)),
-            _ => null,
+            _ => model.GetTypeInfo(expression).Type,
         };
-
     }
 
     public static ITypeSymbol? GetTypeOfSwitchExpressionOrStatement(SemanticModel model, ExpressionSyntax switchSyntaxExpression)
