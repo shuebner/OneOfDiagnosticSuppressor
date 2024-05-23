@@ -25,7 +25,7 @@ class OneOfTypeHelperTests
             .OfType<INamedTypeSymbol>()
             .ToArray();
 
-        INamedTypeSymbol instanceType = parameterTypes.First();
+        INamedTypeSymbol instanceType = parameterTypes[0];
         var expectedSubtypes = parameterTypes.Skip(1);
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
@@ -58,7 +58,7 @@ class OneOfTypeHelperTests
             .OfType<INamedTypeSymbol>()
             .ToArray();
 
-        INamedTypeSymbol instanceType = parameterTypes.First();
+        INamedTypeSymbol instanceType = parameterTypes[0];
         var expectedSubtypes = parameterTypes.Skip(1);
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
@@ -92,7 +92,7 @@ static class Foo {{ public static void Do(InheritedOneOfBase instance, {dummyPar
             .OfType<INamedTypeSymbol>()
             .ToArray();
 
-        INamedTypeSymbol instanceType = parameterTypes.First();
+        INamedTypeSymbol instanceType = parameterTypes[0];
         var expectedSubtypes = parameterTypes.Skip(1);
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
@@ -128,7 +128,7 @@ static class Foo {{ public static void Do(FinalClass instance, {dummyParameterLi
             .OfType<INamedTypeSymbol>()
             .ToArray();
 
-        INamedTypeSymbol instanceType = parameterTypes.First();
+        INamedTypeSymbol instanceType = parameterTypes[0];
         var expectedSubtypes = parameterTypes.Skip(1);
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
@@ -156,7 +156,7 @@ static class Foo {{ public static void Do(FinalClass instance, {dummyParameterLi
             .OfType<INamedTypeSymbol>()
             .ToArray();
 
-        INamedTypeSymbol instanceType = parameterTypes.First();
+        INamedTypeSymbol instanceType = parameterTypes[0];
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
 

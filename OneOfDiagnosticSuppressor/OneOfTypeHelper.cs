@@ -6,7 +6,7 @@ using System.Linq;
 namespace SvSoft.OneOf.Analyzers.SwitchDiagnosticSuppression;
 static class OneOfTypeHelper
 {
-    static readonly string[] OneOfTypeNames = { "OneOf", "OneOfBase" };
+    static readonly string[] OneOfTypeNames = ["OneOf", "OneOfBase"];
 
     public static IEnumerable<INamedTypeSymbol>? GetOneOfSubTypes(INamedTypeSymbol oneOfCandidate)
     {
@@ -32,7 +32,7 @@ static class OneOfTypeHelper
 
         return null;
 
-        INamedTypeSymbol? TryGetRootType(INamedTypeSymbol typeSymbol)
+        static INamedTypeSymbol? TryGetRootType(INamedTypeSymbol typeSymbol)
         {
             INamedTypeSymbol rootType = typeSymbol;
             while (rootType.BaseType is not null &&

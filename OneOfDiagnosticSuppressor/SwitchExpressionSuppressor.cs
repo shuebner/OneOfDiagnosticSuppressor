@@ -11,7 +11,7 @@ namespace SvSoft.OneOf.Analyzers.SwitchDiagnosticSuppression;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SwitchExpressionSuppressor : DiagnosticSuppressor
 {
-    static readonly string[] SuppressedDiagnosticIds = { "CS8509", "IDE0072" };
+    static readonly string[] SuppressedDiagnosticIds = ["CS8509", "IDE0072"];
 
     public static readonly IReadOnlyDictionary<string, SuppressionDescriptor> SuppressionDescriptorByDiagnosticId = SuppressedDiagnosticIds.ToDictionary(
         id => id,

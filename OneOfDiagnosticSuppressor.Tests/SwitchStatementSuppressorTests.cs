@@ -12,14 +12,14 @@ class SwitchStatementSuppressorTests
         "Microsoft.CodeAnalysis.CSharp.PopulateSwitch.CSharpPopulateSwitchStatementDiagnosticAnalyzer")?.Unwrap()
         ?? throw new InvalidOperationException("could not instantiate populate switch statement analyzer for IDE0072"));
 
-    Task EnsureNotSuppressed(string code, NullableContextOptions nullableContextOptions) =>
+    static Task EnsureNotSuppressed(string code, NullableContextOptions nullableContextOptions) =>
         DiagnosticSuppressorAnalyer.EnsureNotSuppressed(
             new SwitchStatementSuppressor(),
             code,
             nullableContextOptions,
             ("IDE0010", IDE0010Analyzer));
 
-    Task EnsureSuppressed(string code, NullableContextOptions nullableContextOptions) =>
+    static Task EnsureSuppressed(string code, NullableContextOptions nullableContextOptions) =>
         DiagnosticSuppressorAnalyer.EnsureSuppressed(
             new SwitchStatementSuppressor(),
             SwitchStatementSuppressor.SuppressionDescriptorByDiagnosticId.Values,

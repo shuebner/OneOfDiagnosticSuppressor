@@ -17,7 +17,7 @@ public static class DiagnosticSuppressorAnalyer
         string testCode,
         NullableContextOptions nullableContextOptions = NullableContextOptions.Disable,
         params (string DiagnosticId, DiagnosticAnalyzer Analyzer)[] additionalAnalyzerOptions) =>
-        EnsureSuppressed(suppressor, Array.Empty<SuppressionDescriptor>(), testCode, nullableContextOptions, additionalAnalyzerOptions);
+        EnsureSuppressed(suppressor, [], testCode, nullableContextOptions, additionalAnalyzerOptions);
 
     public static async Task EnsureSuppressed(
         DiagnosticSuppressor suppressor,
