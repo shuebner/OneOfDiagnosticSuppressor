@@ -62,7 +62,7 @@ public static class DiagnosticSuppressorAnalyer
         Assert.That(nonHiddenErrors, Is.EquivalentTo(suppressibleErrors), "there were non-suppressible errors");
         Assert.That(suppressibleErrors, Is.Not.Empty, "expected errors to suppress, but there weren't any");
 
-        var compilationWithSuppressor = compilationWithWarnings.WithAnalyzers(additionalAnalyzers.Add(suppressor));
+        var compilationWithSuppressor = compilationWithWarnings.WithAnalyzers(additionalAnalyzers.Add(suppressor), new CompilationWithAnalyzersOptions(null, null, true, true, reportSuppressedDiagnostics: true, null));
 
         ImmutableArray<Diagnostic> analyzerErrors = await compilationWithSuppressor.GetAllDiagnosticsAsync().ConfigureAwait(false);
 
