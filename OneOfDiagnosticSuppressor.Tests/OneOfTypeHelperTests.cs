@@ -30,9 +30,10 @@ class OneOfTypeHelperTests
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
 
-        Assert.IsNotNull(subtypes);
-        Assert.IsTrue(
+        Assert.That(subtypes, Is.Not.Null);
+        Assert.That(
             subtypes!.SequenceEqual(expectedSubtypes, SymbolEqualityComparer.IncludeNullability),
+            Is.True,
             "got {0} but expected {1}",
             string.Join(", ", subtypes!),
             string.Join(", ", expectedSubtypes));
@@ -62,9 +63,10 @@ class OneOfTypeHelperTests
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
 
-        Assert.IsNotNull(subtypes);
-        Assert.IsTrue(
+        Assert.That(subtypes, Is.Not.Null);
+        Assert.That(
             subtypes!.SequenceEqual(expectedSubtypes, SymbolEqualityComparer.IncludeNullability),
+            Is.True,
             "got {0} but expected {1}",
             string.Join(", ", subtypes!),
             string.Join(", ", expectedSubtypes));
@@ -95,9 +97,10 @@ static class Foo {{ public static void Do(InheritedOneOfBase instance, {dummyPar
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
 
-        Assert.IsNotNull(subtypes);
-        Assert.IsTrue(
+        Assert.That(subtypes, Is.Not.Null);
+        Assert.That(
             subtypes!.SequenceEqual(expectedSubtypes, SymbolEqualityComparer.IncludeNullability),
+            Is.True,
             "got {0} but expected {1}",
             string.Join(", ", subtypes!),
             string.Join(", ", expectedSubtypes));
@@ -130,9 +133,10 @@ static class Foo {{ public static void Do(FinalClass instance, {dummyParameterLi
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
 
-        Assert.IsNotNull(subtypes);
-        Assert.IsTrue(
+        Assert.That(subtypes, Is.Not.Null);
+        Assert.That(
             subtypes!.SequenceEqual(expectedSubtypes, SymbolEqualityComparer.IncludeNullability),
+            Is.True,
             "got {0} but expected {1}",
             string.Join(", ", subtypes!),
             string.Join(", ", expectedSubtypes));
@@ -156,7 +160,7 @@ static class Foo {{ public static void Do(FinalClass instance, {dummyParameterLi
 
         var subtypes = OneOfTypeHelper.GetOneOfSubTypes(instanceType);
 
-        Assert.IsNull(subtypes);
+        Assert.That(subtypes, Is.Null);
     }
 
     static string WrapInNamespace(string code) => $@"
