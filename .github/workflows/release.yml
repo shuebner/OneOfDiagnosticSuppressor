@@ -15,7 +15,7 @@ jobs:
       # "refs/tags/v" is 11 characters
       run: |
         versionNumber=${GITHUB_REF:11}
-        echo "::set-output name=version_number::$versionNumber"
+        echo "version_number=$versionNumber" >> $GITHUB_OUTPUT
 
     - uses: actions/checkout@v4
 
