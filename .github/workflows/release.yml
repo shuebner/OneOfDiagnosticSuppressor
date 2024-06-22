@@ -17,10 +17,10 @@ jobs:
         versionNumber=${GITHUB_REF:11}
         echo "::set-output name=version_number::$versionNumber"
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
 
     - name: Create nuget package
       run: dotnet pack -c Release OneOfDiagnosticSuppressor -o package -p:Version=${{ steps.get_version.outputs.version_number }}
